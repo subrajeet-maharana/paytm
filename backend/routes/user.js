@@ -86,8 +86,21 @@ router.post("/signup", async (req, res) => {
       refreshToken: refreshToken,
     });
 
+    const balance = 10000 * 100 * (Math.floor(Math.random()) + 1);
     await newUser.save();
 
+    try {
+      const newAccount = new Account({
+        user: newUser._id,
+        balance: balance,
+      });
+      await newAccount.save();
+    } catch (error) {
+      res.status(400).json({
+        error: error.message,
+      });
+    }
+    const token = jwt.sign({ user_id }, JWT_SECRET, { expiresIn: "5h" });
     res.status(200).json({
       message: "User Created Successfully",
       user: newUser,
