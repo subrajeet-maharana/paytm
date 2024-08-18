@@ -25,7 +25,7 @@ const UserSchema = new mongoose.Schema({
   },
   refreshToken: {
     type: String,
-    required: true,
+    required: false,
   },
   createdAt: {
     type: Date,

@@ -10,21 +10,23 @@ const authMiddleware = (req, res, next) => {
     const decoded = jwt.verify(token, JWT_SECRET, (error, decoded) => {
       if (error) {
         res.status(400).json({
-          message: "From JWT.verify() " + error.message,
+          message: error.message,
         });
       }
       return decoded;
     });
-    console.log(decoded);
+
+    //Check if the access token is expired or not
     const currenTime = Date.now() / 1000;
     if (decoded.exp < currenTime) {
       res.json({
         message: "Token Expired",
       });
     }
-    console.log("Middleware: " + decoded);
+
+    //If successfully decoded then pass the userId in request
     if (decoded) {
-      req.userId = decoded._id;
+      req.userId = decoded.userId;
       next();
     } else {
       res.json({

@@ -76,16 +76,17 @@ router.post("/signup", async (req, res) => {
       });
     }
 
-    const accessToken = generateAccessToken({ email });
-    const refreshToken = generateRefreshToken({ email });
-
     const newUser = new User({
       email: email,
       firstName: firstName,
       lastName: lastName,
       password: password,
-      refreshToken: refreshToken,
     });
+    await newUser.save();
+
+    const accessToken = generateAccessToken({ userId: newUser._id });
+    const refreshToken = generateRefreshToken({ userId: newUser._id });
+    newUser.refreshToken = refreshToken;
     await newUser.save();
 
     const balance = Math.floor(10000 * 100 * Math.random()) + 1;
@@ -136,8 +137,8 @@ router.post("/signin", async (req, res) => {
         message: "User doesn't exist.",
       });
     }
-    const accessToken = generateAccessToken({ email });
-    const refreshToken = generateRefreshToken({ email });
+    const accessToken = generateAccessToken({ userId: existingUser._id });
+    const refreshToken = generateRefreshToken({ userId: existingUser._id });
 
     existingUser.refreshToken = refreshToken;
     await existingUser.save();
