@@ -4,6 +4,7 @@ import User from "../models/User.js";
 import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
 import authMiddleware from "../middlewares/auth.js";
+import Account from "../models/Account.js";
 
 dotenv.config();
 
@@ -85,27 +86,28 @@ router.post("/signup", async (req, res) => {
       password: password,
       refreshToken: refreshToken,
     });
-
-    const balance = 10000 * 100 * (Math.floor(Math.random()) + 1);
     await newUser.save();
 
+    const balance = Math.floor(10000 * 100 * Math.random()) + 1;
+
+    //Creating account and linking with the user account
     try {
       const newAccount = new Account({
         user: newUser._id,
         balance: balance,
       });
       await newAccount.save();
-      newUser = { ...newUser, account: newAccount._id };
+      newUser.account = newAccount._id;
       newUser.save();
     } catch (error) {
       res.status(400).json({
         error: error.message,
       });
     }
-    const token = jwt.sign({ user_id }, JWT_SECRET, { expiresIn: "5h" });
     res.status(200).json({
       message: "User Created Successfully",
       user: newUser,
+      balance: balance / 100.0,
       accessToken: accessToken,
       refreshToken: refreshToken,
     });
