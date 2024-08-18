@@ -3,6 +3,7 @@ import { z } from "zod";
 import User from "../models/User.js";
 import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
+import authMiddleware from "../middlewares/auth.js";
 
 dotenv.config();
 
@@ -21,9 +22,12 @@ const loginSchema = z.object({
   password: z.string().min(3),
 });
 
-router.get("/", (req, res) => {
+router.get("/auth", authMiddleware, async (req, res) => {
+  const { firstName } = await User.findOne({ email: req.email });
+  console.log(firstName);
   res.json({
-    message: "User Route Default Location",
+    firstName: firstName,
+    message: "Authenticated Routes",
   });
 });
 
@@ -48,7 +52,7 @@ router.post("/signup", async (req, res) => {
 
     await newUser.save();
 
-    const token = jwt.sign({ email }, JWT_SECRET);
+    const token = jwt.sign({ email }, JWT_SECRET, { expiresIn: "5s" });
     res.status(200).json({
       user: newUser,
       message: "User Created Successfully",
@@ -72,7 +76,7 @@ router.post("/signin", async (req, res) => {
         message: "User doesn't exist.",
       });
     }
-    const token = jwt.sign({ email }, JWT_SECRET);
+    const token = jwt.sign({ email }, JWT_SECRET, { expiresIn: "5s" });
     res.status(200).json({
       jwt: token,
     });
