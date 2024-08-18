@@ -11,7 +11,7 @@ const JWT_SECRET = process.env.JWT_SECRET;
 const router = express.Router();
 
 const generateAccessToken = (payload) => {
-  return jwt.sign(payload, JWT_SECRET, { expiresIn: "5s" });
+  return jwt.sign(payload, JWT_SECRET, { expiresIn: "1hr" });
 };
 
 const generateRefreshToken = (payload) => {
@@ -162,6 +162,18 @@ router.post("/refresh", async (req, res) => {
       const newAccessToken = generateAccessToken({ email: user.email });
       return res.status(200).json({ accessToken: newAccessToken });
     }
+  });
+});
+
+router.get("/bulk", authMiddleware, async (req, res) => {
+  const filter = req.query.filter || "";
+
+  const users = await User.find({
+    $or: [{ firstName: filter }, { lastName: filter }],
+  });
+
+  return res.status(200).json({
+    users: users,
   });
 });
 
