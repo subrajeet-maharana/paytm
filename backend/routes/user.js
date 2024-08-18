@@ -95,6 +95,8 @@ router.post("/signup", async (req, res) => {
         balance: balance,
       });
       await newAccount.save();
+      newUser = { ...newUser, account: newAccount._id };
+      newUser.save();
     } catch (error) {
       res.status(400).json({
         error: error.message,
