@@ -22,6 +22,32 @@ const loginSchema = z.object({
   password: z.string().min(3),
 });
 
+const updateSchema = z.object({
+  firstName: z.string().optional(),
+  lastName: z.string().optional(),
+  password: z.string().optional(),
+});
+
+router.put("/update", authMiddleware, async (req, res) => {
+  try {
+    const { success } = updateSchema.safeParse(req.body);
+    if (!success) {
+      res.status(411).json({
+        message: "Give valid input",
+      });
+    } else {
+      await User.updateOne(req.userId, req.body);
+      res.status(200).json({
+        message: "User Updated Successfully",
+      });
+    }
+  } catch (error) {
+    res.status(411).json({
+      message: "Error while updating information" + error.message,
+    });
+  }
+});
+
 router.get("/auth", authMiddleware, async (req, res) => {
   const { firstName } = await User.findOne({ email: req.email });
   console.log(firstName);
@@ -52,7 +78,7 @@ router.post("/signup", async (req, res) => {
 
     await newUser.save();
 
-    const token = jwt.sign({ email }, JWT_SECRET, { expiresIn: "5s" });
+    const token = jwt.sign({ email }, JWT_SECRET, { expiresIn: "5h" });
     res.status(200).json({
       user: newUser,
       message: "User Created Successfully",
@@ -76,7 +102,7 @@ router.post("/signin", async (req, res) => {
         message: "User doesn't exist.",
       });
     }
-    const token = jwt.sign({ email }, JWT_SECRET, { expiresIn: "5s" });
+    const token = jwt.sign({ email }, JWT_SECRET, { expiresIn: "5h" });
     res.status(200).json({
       jwt: token,
     });

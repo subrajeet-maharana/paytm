@@ -17,7 +17,7 @@ const authMiddleware = (req, res, next) => {
     }
     console.log("Middleware: " + decoded);
     if (decoded) {
-      req.email = decoded.email;
+      req.userId = decoded._id;
       next();
     } else {
       res.json({
