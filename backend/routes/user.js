@@ -30,6 +30,32 @@ const loginSchema = z.object({
   password: z.string().min(3),
 });
 
+const updateSchema = z.object({
+  firstName: z.string().optional(),
+  lastName: z.string().optional(),
+  password: z.string().optional(),
+});
+
+router.put("/update", authMiddleware, async (req, res) => {
+  try {
+    const { success } = updateSchema.safeParse(req.body);
+    if (!success) {
+      res.status(411).json({
+        message: "Give valid input",
+      });
+    } else {
+      await User.updateOne(req.userId, req.body);
+      res.status(200).json({
+        message: "User Updated Successfully",
+      });
+    }
+  } catch (error) {
+    res.status(411).json({
+      message: "Error while updating information" + error.message,
+    });
+  }
+});
+
 router.get("/auth", authMiddleware, async (req, res) => {
   const { firstName } = await User.findOne({ email: req.email });
   res.json({
