@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import Account from "./Account.js";
 
 const UserSchema = new mongoose.Schema({
   email: {
@@ -25,6 +26,10 @@ const UserSchema = new mongoose.Schema({
   createdAt: {
     type: Date,
     default: Date.now(),
+  },
+  account: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: Account,
   },
 });
 
