@@ -14,14 +14,12 @@ async function executeTransaction(beneficiaryId, senderId, amount) {
       { $inc: { balance: amount } },
       opts
     );
-    console.log(moneyCreditedToBeneficiary);
 
     const moneyDeductedFromSender = await Account.findOneAndUpdate(
       { _id: senderId },
       { $inc: { balance: -1 * amount } },
       opts
     );
-    console.log(moneyDeductedFromSender);
 
     await session.commitTransaction();
     session.endSession();
@@ -52,6 +50,7 @@ router.post("/transfer", authMiddleware, async (req, res) => {
   try {
     const amount = req.body.amount * 100;
     const senderAccount = await Account.findOne({ user: req.userId });
+    const beneficiaryAccount = await Account.findOne({ user: req.body.to });
 
     //Check the current amount is less than or equal to the senderAccount balance
     if (amount > senderAccount.balance) {
@@ -60,7 +59,11 @@ router.post("/transfer", authMiddleware, async (req, res) => {
       });
     }
 
-    const success = executeTransaction(req.body.to, req.userId, amount);
+    const success = executeTransaction(
+      beneficiaryAccount._id,
+      senderAccount._id,
+      amount
+    );
 
     if (!success) {
       return res.status(400).json({ message: "Transaction Unsuccessfull" });
