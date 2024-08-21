@@ -1,3 +1,4 @@
+
 import * as React from "react"
 
 import { Button } from "@/components/ui/button"
@@ -11,49 +12,36 @@ import {
 } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
 
 export function Signin() {
   return (
-    <Card className="w-[350px]">
-      <CardHeader>
-        <CardTitle>Create project</CardTitle>
-        <CardDescription>Deploy your new project in one-click.</CardDescription>
+    <Card className="items-center w-[350px]">
+      <CardHeader className="gap-2">
+        <CardTitle className="font-bold text-4xl">Sign In</CardTitle>
+        <CardDescription className="text-lg font-semibold text-gray-400">Enter your credentials to access your account</CardDescription>
       </CardHeader>
       <CardContent>
         <form>
-          <div className="grid w-full items-center gap-4">
-            <div className="flex flex-col space-y-1.5">
-              <Label htmlFor="name">Name</Label>
-              <Input id="name" placeholder="Name of your project" />
+          <div className="grid w-full gap-4">
+            <div className="flex flex-col items-start space-y-1.5">
+              <Label htmlFor="email" className="font-semibold text-base">Email</Label>
+              <Input id="name" type="email" placeholder="Subrajeet@example.com" />
             </div>
-            <div className="flex flex-col space-y-1.5">
-              <Label htmlFor="framework">Framework</Label>
-              <Select>
-                <SelectTrigger id="framework">
-                  <SelectValue placeholder="Select" />
-                </SelectTrigger>
-                <SelectContent position="popper">
-                  <SelectItem value="next">Next.js</SelectItem>
-                  <SelectItem value="sveltekit">SvelteKit</SelectItem>
-                  <SelectItem value="astro">Astro</SelectItem>
-                  <SelectItem value="nuxt">Nuxt.js</SelectItem>
-                </SelectContent>
-              </Select>
+            <div className="flex flex-col items-start space-y-1.5">
+              <Label htmlFor="password" className="font-semibold text-base">Password</Label>
+              <Input id="name" type="password" placeholder="Password" />
             </div>
-          </div>
+           </div>
         </form>
       </CardContent>
-      <CardFooter className="flex justify-between">
-        <Button variant="outline">Cancel</Button>
-        <Button>Deploy</Button>
+      <CardFooter className="flex flex-col gap-3">
+        <Button className="w-full">Sign In</Button>
+        <div> 
+            <Label className="mr-2.5">Don't have an account?</Label>
+            <a href="" className="font-medium underline">Sign Up</a>
+        </div>
       </CardFooter>
     </Card>
   )
 }
+
