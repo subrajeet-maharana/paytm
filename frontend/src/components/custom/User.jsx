@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import { Button } from "../ui/button";
 
 const User = ({ user }) => {
@@ -10,7 +11,9 @@ const User = ({ user }) => {
         <div>{user.fullName}</div>
       </div>
       <div>
-        <Button>Send Money</Button>
+        <Link to="/send">
+          <Button>Send Money</Button>
+        </Link>
       </div>
     </div>
   );
