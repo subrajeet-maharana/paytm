@@ -33,7 +33,11 @@ const Signup = () => {
           email: email,
           password: password,
         })
-        .then((response) => console.log(response.data))
+        .then((response) => {
+          console.log(response.data);
+          localStorage.setItem("accessToken", response.data.accessToken);
+          localStorage.setItem("refreshToken", response.data.refreshToken);
+        })
         .catch((error) => console.log(error));
       navigate("/dashboard");
     } catch (error) {

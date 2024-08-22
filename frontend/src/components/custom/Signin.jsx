@@ -9,9 +9,36 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Link } from "react-router-dom";
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import axios from "../../axiosConfig";
+
+const axiosAuth = axios.create();
 
 const Signin = () => {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const navigate = useNavigate();
+
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    try {
+      await axiosAuth
+        .post("/user/signin", {
+          email,
+          password,
+        })
+        .then((response) => {
+          console.log(response.data);
+          localStorage.setItem("accessToken", response.data.accessToken);
+          localStorage.setItem("refreshToken", response.data.refreshToken);
+          navigate("/dashboard");
+        });
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   return (
     <div className="flex justify-center items-center min-h-screen">
       <Card className="items-center w-[350px]">
@@ -31,22 +58,30 @@ const Signin = () => {
                   Email
                 </Label>
                 <Input
-                  id="name"
+                  id="email"
                   type="email"
                   placeholder="Subrajeet@example.com"
+                  onChange={(e) => setEmail(e.target.value)}
                 />
               </div>
               <div className="flex flex-col items-start space-y-1.5">
                 <Label htmlFor="password" className="font-semibold text-base">
                   Password
                 </Label>
-                <Input id="name" type="password" placeholder="Password" />
+                <Input
+                  id="password"
+                  type="password"
+                  placeholder="Password"
+                  onChange={(e) => setPassword(e.target.value)}
+                />
               </div>
             </div>
           </form>
         </CardContent>
         <CardFooter className="flex flex-col gap-3">
-          <Button className="w-full">Sign In</Button>
+          <Button className="w-full" onClick={handleSubmit}>
+            Sign In
+          </Button>
           <div>
             <Label className="mr-2.5">Don&apos;t have an account?</Label>
             <Link to="/signup" className="font-medium text-sm underline">
