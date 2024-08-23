@@ -37,26 +37,6 @@ const updateSchema = z.object({
   password: z.string().optional(),
 });
 
-router.put("/update", authMiddleware, async (req, res) => {
-  try {
-    const { success } = updateSchema.safeParse(req.body);
-    if (!success) {
-      res.status(411).json({
-        message: "Give valid input",
-      });
-    } else {
-      await User.updateOne(req.userId, req.body);
-      res.status(200).json({
-        message: "User Updated Successfully",
-      });
-    }
-  } catch (error) {
-    res.status(411).json({
-      message: "Error while updating information" + error.message,
-    });
-  }
-});
-
 router.get("/auth", authMiddleware, async (req, res) => {
   const { firstName } = await User.findOne({ email: req.email });
   res.json({
@@ -66,7 +46,12 @@ router.get("/auth", authMiddleware, async (req, res) => {
 });
 
 router.post("/signup", async (req, res) => {
-  const { email, firstName, lastName, password } = req.body;
+  //To caonvert all the values of the req.body object to lowercase
+  req.body = Object.fromEntries(
+    Object.entries(req.body).map(([key, value]) => [key, value.toLowerCase()])
+  );
+  const { firstName, lastName, email, password } = req.body;
+
   try {
     signupSchema.safeParse(req.body);
     const existingUser = await User.findOne({ email });
@@ -105,7 +90,7 @@ router.post("/signup", async (req, res) => {
         error: error.message,
       });
     }
-    res.status(200).json({
+    return res.status(200).json({
       message: "User Created Successfully",
       user: newUser,
       balance: balance / 100.0,
@@ -113,7 +98,7 @@ router.post("/signup", async (req, res) => {
       refreshToken: refreshToken,
     });
   } catch (error) {
-    res.status(400).json({
+    return res.status(400).json({
       message: "Invalid User Input ",
       details: error.errors,
     });
@@ -121,19 +106,18 @@ router.post("/signup", async (req, res) => {
 });
 
 router.post("/signin", async (req, res) => {
+  //To caonvert all the values of the req.body object to lowercase
+  req.body = Object.fromEntries(
+    Object.entries(req.body).map(([key, value]) => [key, value.toLowerCase()])
+  );
   const { email, password } = req.body;
-  try {
-    const { success } = loginSchema.safeParse({ email, password });
 
-    if (!success) {
-      res.status(400).json({
-        message: "Invalid User Input",
-        details: error.errors,
-      });
-    }
-    const existingUser = await User.findOne({ email, password });
+  try {
+    loginSchema.safeParse({ email, password });
+    const options = { email };
+    const existingUser = await User.findOne(options);
     if (!existingUser) {
-      res.status(411).json({
+      return res.status(404).json({
         message: "User doesn't exist.",
       });
     }
@@ -143,7 +127,7 @@ router.post("/signin", async (req, res) => {
     existingUser.refreshToken = refreshToken;
     await existingUser.save();
 
-    res.status(200).json({
+    return res.status(200).json({
       user: existingUser,
       accessToken: accessToken,
       refreshToken: refreshToken,
@@ -155,44 +139,80 @@ router.post("/signin", async (req, res) => {
   }
 });
 
-router.post("/refresh", async (req, res) => {
-  //Get the refresh token from the request header
-  const authorization = req.headers.authorization;
-  console.log(authorization);
-
-  const refreshToken = authorization.split(" ")[1];
-  console.log(refreshToken);
-  //Check if the refreshTOken is valid or not
-  const user = await User.findOne({ refreshToken });
-  if (!user) {
-    res
-      .status(400)
-      .json({ message: "Refresh token is not valid or User not present" });
+router.put("/update", authMiddleware, async (req, res) => {
+  //To caonvert all the values of the req.body object to lowercase
+  req.body = Object.fromEntries(
+    Object.entries(req.body).map(([key, value]) => [key, value.toLowerCase()])
+  );
+  try {
+    const { success } = updateSchema.safeParse(req.body);
+    if (!success) {
+      res.status(411).json({
+        message: "Give valid input",
+      });
+    } else {
+      await User.updateOne(req.userId, req.body);
+      return res.status(200).json({
+        message: "User Updated Successfully",
+      });
+    }
+  } catch (error) {
+    res.status(411).json({
+      message: "Error while updating information" + error.message,
+    });
   }
-  console.log(user);
-  //If valid then we'll verify the refreshToken if that belong to that user
-  jwt.verify(refreshToken, JWT_SECRET, (err, decoded) => {
-    if (err) {
-      return res.status(400).json({ message: err.message });
+});
+
+router.post("/refresh", async (req, res) => {
+  try {
+    //Get the refresh token from the request header
+    const authorization = req.headers.authorization;
+    console.log(authorization);
+
+    const refreshToken = authorization.split(" ")[1];
+    console.log(refreshToken);
+    //Check if the refreshTOken is valid or not
+    const user = await User.findOne({ refreshToken });
+    if (!user) {
+      res
+        .status(400)
+        .json({ message: "Refresh token is not valid or User not present" });
     }
-    if (decoded.email === user.email) {
-      //then we'll create a new access token and send that to user
-      const newAccessToken = generateAccessToken({ email: user.email });
-      return res.status(200).json({ accessToken: newAccessToken });
-    }
-  });
+    console.log(user);
+    //If valid then we'll verify the refreshToken if that belong to that user
+    jwt.verify(refreshToken, JWT_SECRET, (err, decoded) => {
+      if (err) {
+        return res.status(400).json({ message: err.message });
+      }
+      if (decoded.email === user.email) {
+        //then we'll create a new access token and send that to user
+        const newAccessToken = generateAccessToken({ email: user.email });
+        return res.status(200).json({ accessToken: newAccessToken });
+      }
+    });
+  } catch (error) {
+    return res.status(400).json({
+      message: error.message,
+    });
+  }
 });
 
 router.get("/bulk", authMiddleware, async (req, res) => {
-  const filter = req.query.filter || "";
+  try {
+    const filter = req.query.filter || "";
 
-  const users = await User.find({
-    $or: [{ firstName: filter }, { lastName: filter }],
-  });
+    const users = await User.find({
+      $or: [{ firstName: filter }, { lastName: filter }],
+    });
 
-  return res.status(200).json({
-    users: users,
-  });
+    return res.status(200).json({
+      users: users,
+    });
+  } catch (error) {
+    return res.status(400).json({
+      message: error.message,
+    });
+  }
 });
 
 export default router;

@@ -1,7 +1,6 @@
 import Appbar from "./Appbar";
 import Balance from "./Balance";
 import AllUsers from "./AllUsers";
-import Send from "./Send";
 
 const Dashboard = () => {
   return (

@@ -8,9 +8,33 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Link } from "react-router-dom";
+import axios from "axios";
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 
 const Send = () => {
+  const [amount, setAmount] = useState(0);
+  const navigate = useNavigate();
+
+  const handleTransfer = async (event) => {
+    event.preventDefault();
+    const accessToken = localStorage.getItem("accessToken");
+    try {
+      await axios
+        .post(
+          "/account/transfer",
+          { to: "", amount },
+          { authorization: `Bearer ${accessToken}` }
+        )
+        .then((response) => {
+          alert(response.data.message);
+          navigate("/dashboard");
+        })
+        .catch((error) => console.log(error));
+    } catch (error) {
+      console.log(error);
+    }
+  };
   return (
     <div className="flex justify-center items-center min-h-screen">
       <Card className=" items-center w-[350px]">
@@ -36,14 +60,22 @@ const Send = () => {
                 <Label htmlFor="password" className="font-semibold text-base">
                   Amount (in Rs)
                 </Label>
-                <Input id="name" type="number" placeholder="Enter Amount" />
+                <Input
+                  id="name"
+                  type="number"
+                  placeholder="Enter Amount"
+                  onChange={(e) => setAmount(e.target.value)}
+                />
               </div>
             </div>
           </form>
         </CardContent>
         <CardFooter className="flex flex-col gap-3">
           <Link to="/dashboard">
-            <Button className="w-full bg-green-500 hover:bg-green-600">
+            <Button
+              className="w-full bg-green-500 hover:bg-green-600 "
+              onClick={handleTransfer}
+            >
               Initiate Transfer
             </Button>
           </Link>

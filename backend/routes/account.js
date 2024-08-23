@@ -69,7 +69,11 @@ router.post("/transfer", authMiddleware, async (req, res) => {
       return res.status(400).json({ message: "Transaction Unsuccessfull" });
     }
 
-    return res.status(200).json({ message: "Money sent to beneficiary" });
+    return res
+      .status(200)
+      .json({
+        message: `Rs. ${amount} sent to ${beneficiaryAccount.firstName}`,
+      });
   } catch (error) {
     res.status(400).json({
       message: error.message,

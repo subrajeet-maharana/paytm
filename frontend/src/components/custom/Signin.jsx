@@ -1,4 +1,10 @@
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import axios from "../../axiosConfig";
+// import axios from "axios";
 import {
   Card,
   CardContent,
@@ -7,13 +13,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import axios from "../../axiosConfig";
-
-const axiosAuth = axios.create();
 
 const Signin = () => {
   const [email, setEmail] = useState("");
@@ -23,8 +22,8 @@ const Signin = () => {
   const handleSubmit = async (event) => {
     event.preventDefault();
     try {
-      await axiosAuth
-        .post("/user/signin", {
+      await axios
+        .post("user/signin", {
           email,
           password,
         })
@@ -33,7 +32,8 @@ const Signin = () => {
           localStorage.setItem("accessToken", response.data.accessToken);
           localStorage.setItem("refreshToken", response.data.refreshToken);
           navigate("/dashboard");
-        });
+        })
+        .catch((error) => console.log(error));
     } catch (error) {
       console.log(error);
     }

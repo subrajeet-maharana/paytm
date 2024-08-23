@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import axios from "../../axiosConfig";
+// import axios from "axios";
 import {
   Card,
   CardContent,
@@ -12,9 +13,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-
-//Creating a new axios instance for signup
-const axiosAuth = axios.create();
 
 const Signup = () => {
   const [firstName, setFirstName] = useState("");
@@ -26,20 +24,20 @@ const Signup = () => {
   const handleSubmit = async (event) => {
     event.preventDefault();
     try {
-      axiosAuth
-        .post("/user/signup", {
-          firstName: firstName,
-          lastName: lastName,
-          email: email,
-          password: password,
+      await axios
+        .post("user/signup", {
+          firstName,
+          lastName,
+          email,
+          password,
         })
         .then((response) => {
           console.log(response.data);
           localStorage.setItem("accessToken", response.data.accessToken);
           localStorage.setItem("refreshToken", response.data.refreshToken);
+          navigate("/dashboard");
         })
         .catch((error) => console.log(error));
-      navigate("/dashboard");
     } catch (error) {
       console.log(error);
     }
