@@ -1,11 +1,11 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import axios from "../../axiosConfig.js";
 const Balance = () => {
   const [balance, setBalance] = useState("");
   useEffect(() => {
     try {
       axios
-        .get("/user/balance", {
+        .get("/account/balance", {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
           },

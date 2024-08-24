@@ -222,7 +222,6 @@ router.get("/allusers", authMiddleware, async (req, res) => {
         const users = await User.find({
             _id: { $ne: req.userId },
         });
-        console.log(users);
         res.status(200).json({
             users: users,
         });
