@@ -11,7 +11,7 @@ const User = ({ user }) => {
         <div>{toTitleCase(user.firstName + " " + user.lastName)}</div>
       </div>
       <div>
-        <Link to="/send">
+        <Link to="/send" state={{ user }}>
           <Button>Send Money</Button>
         </Link>
       </div>
