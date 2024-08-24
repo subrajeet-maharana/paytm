@@ -8,7 +8,7 @@ const AllUsers = ({ users }) => {
       <Input placeholder="Search users..." className="mt-2" />
 
       {users.map((user) => (
-        <User key={Math.random().toFixed(2) * 1000} user={user} />
+        <User key={Math.random().toFixed(3) * 1000} user={user} />
       ))}
     </div>
   );

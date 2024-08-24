@@ -28,7 +28,6 @@ const Signin = () => {
           password,
         })
         .then((response) => {
-          console.log(response.data);
           localStorage.setItem("accessToken", response.data.accessToken);
           localStorage.setItem("refreshToken", response.data.refreshToken);
           navigate("/dashboard");

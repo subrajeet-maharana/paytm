@@ -25,7 +25,11 @@ const Send = () => {
       await axios
         .post(
           "/account/transfer",
-          { to: user._id, amount, headers: { authorization: `Bearer ${accessToken}` } },
+          {
+            to: user._id,
+            amount,
+          },
+          { headers: { authorization: `Bearer ${accessToken}` } }
         )
         .then((response) => {
           alert(response.data.message);

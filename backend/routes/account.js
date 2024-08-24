@@ -1,6 +1,7 @@
 import express from "express";
 import Account from "../models/Account.js";
 import authMiddleware from "../middlewares/auth.js";
+import User from "../models/User.js";
 
 const router = express.Router();
 
@@ -51,6 +52,7 @@ router.post("/transfer", authMiddleware, async (req, res) => {
     const amount = req.body.amount * 100;
     const senderAccount = await Account.findOne({ user: req.userId });
     const beneficiaryAccount = await Account.findOne({ user: req.body.to });
+    const beneficiaryUserAccount = await User.findOne({ _id: req.body.to });
 
     //Check the current amount is less than or equal to the senderAccount balance
     if (amount > senderAccount.balance) {
@@ -69,11 +71,12 @@ router.post("/transfer", authMiddleware, async (req, res) => {
       return res.status(400).json({ message: "Transaction Unsuccessfull" });
     }
 
-    return res
-      .status(200)
-      .json({
-        message: `Rs. ${amount} sent to ${beneficiaryAccount.firstName}`,
-      });
+    return res.status(200).json({
+      user: beneficiaryUserAccount,
+      message: `Rs. ${req.body.amount} sent to ${
+        beneficiaryUserAccount.firstName + " " + beneficiaryUserAccount.lastName
+      }`,
+    });
   } catch (error) {
     res.status(400).json({
       message: error.message,
