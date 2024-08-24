@@ -199,7 +199,7 @@ router.post("/refresh", async (req, res) => {
     }
 });
 
-router.get("/bulk", authMiddleware, async (req, res) => {
+router.get("/search", authMiddleware, async (req, res) => {
     try {
         const filter = req.query.filter || "";
 
@@ -213,6 +213,22 @@ router.get("/bulk", authMiddleware, async (req, res) => {
     } catch (error) {
         return res.status(400).json({
             message: error.message,
+        });
+    }
+});
+
+router.get("/allusers", authMiddleware, async (req, res) => {
+    try {
+        const users = await User.find({
+            _id: { $ne: req.userId },
+        });
+        console.log(users);
+        res.status(200).json({
+            users: users,
+        });
+    } catch (error) {
+        return res.status(400).json({
+            Errormessage: error.message,
         });
     }
 });
